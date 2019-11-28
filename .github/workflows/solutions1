@@ -1,0 +1,87 @@
+//This is a collection of code problems and my solution
+
+Problem:
+
+You are given an array (which will have a length of at least 3, but could be very large) containing integers. The array is either entirely comprised of odd integers or entirely comprised of even integers except for a single integer N. Write a method that takes the array as an argument and returns this "outlier" N.
+
+
+My solution:
+
+public class FindOutlier{
+  static int find(int[] integers){
+    int count=0;
+    for (int i=0;i<3;i++) { //need to only check 3 elements to determine if the array is mainly odd or even
+      if (integers[i]%2==0) count++;
+    }
+    if (count >=2) { // array is even
+      for (int a: integers) {
+        if (a%2!=0) return a;
+      }  
+    }else { //array is odd
+      for (int a: integers) {
+        if (a%2==0) return a;
+      }
+    }
+    return -1; //never executes with valid input
+}}
+
+Problem:
+
+Write a function called sumIntervals/sum_intervals() that accepts an array of intervals, and returns the sum of all the interval lengths. Overlapping intervals should only be counted once.
+
+Intervals
+Intervals are represented by a pair of integers in the form of an array. The first value of the interval will always be less than the second value. Interval example: [1, 5] is an interval from 1 to 5. The length of this interval is 4.
+
+Overlapping Intervals
+List containing overlapping intervals:
+
+[
+   [1,4],
+   [7, 10],
+   [3, 5]
+]
+The sum of the lengths of these intervals is 7. Since [1, 4] and [3, 5] overlap, we can treat the interval as [1, 5], which has a length of 4.
+
+My solution:
+
+import java.util.List;
+import java.util.ArrayList;
+import java.util.stream.Collectors; 
+import java.util.stream.Stream;
+
+public class Interval {
+
+    public static int sumIntervals(int[][] intervals) {
+      if (intervals==null || intervals.length==0 ) return 0;
+      int sum=0;
+      List<int []> list = new ArrayList<>();
+      for(int i=0; i<intervals.length; i++) {
+        list.add(new int[] {intervals[i][0],intervals[i][1]}); //makes a list of the int pairs
+      }
+      list= list.stream()
+                .sorted((e1,e2)->Integer.valueOf(e1[0]).compareTo(Integer.valueOf(e2[0]))) //sorts the list based on the first element of each pair
+                .collect(Collectors.toList());
+              
+      for(int i=0; i<list.size()-1;) {
+        if (areOverlapping(list.get(i),list.get(i+1))) { //combines next two pairs if they are overlapping else iterate
+          list.set(i, combine(list.get(i),list.get(i+1)));
+          list.remove(i+1);
+        }else   {i++;}
+      }
+      for(int [] a: list) { //take the sum of the intervals of each pair since by now, no pairs are overlapping
+             sum+=a[1] - a[0];
+      }
+      return sum;
+    }
+        
+    public static boolean areOverlapping(int[] a, int[] b) {//determines if two pairs are overlapping
+        return (a[1] > b[0] || a[1] > b[1]);  
+    }
+        
+    public static int [] combine(int[] a, int[] b) {//creates a pair that covers the interval of both of the argument pairs
+        return new int[]{a[0], Math.max(a[1],b[1])};
+    }
+    
+}
+
+
